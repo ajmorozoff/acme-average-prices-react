@@ -36,7 +36,6 @@ class App extends Component {
 
     averagePrice(arr) {
         //TODO: Ask diego if it's better practice to calculate data here or in child components?
-        //TODO: round this to two decimal places;
         return (arr.reduce((sum, offer) => {return sum + offer.price}, 0) / arr.length).toFixed(2);
     }
 
@@ -49,11 +48,11 @@ class App extends Component {
 
     mapProductOfferings(prodArr, offerArr) {
         return prodArr.map(prod => {
-            let prodOffers = offerArr.filter(offer => offer.productId === prod.id);
-            prodOffers.sort((a, b) => a.price - b.price);
-            console.log(prodOffers);
-            prod.avgPrice = this.averagePrice(prodOffers);
+            let offers = [];
+            let prodOffers = offerArr.filter(offer => offer.productId === prod.id).sort((a, b) => a.price - b.price);
+            prod.offers = prodOffers;
             prod.lowestPrice = prodOffers[0];
+            prod.avgPrice = this.averagePrice(prodOffers);
             return prod;
         })
     }
@@ -77,7 +76,9 @@ class App extends Component {
                 <HashRouter>
                     <NavBar />
                     <Switch>
-                        <Route path="/" render={() => <HomePage prodCount={products.length} avgPrice={this.averagePrice(offerings)} />} />
+                        <Route path="/products/:id" render={(props) => <ProductPage id={props.match.params.id} products={processedProds} />} />
+                        <Route path="/products" render={() => <ListingsPage products={processedProds} />} />
+                        <Route path="/" exact render={() => <HomePage prodCount={products.length} avgPrice={this.averagePrice(offerings)} />} />
                     </Switch>
                 </HashRouter>
             </div>
@@ -88,14 +89,56 @@ class App extends Component {
 class ListingsPage extends Component {
     constructor(props) {
         super();
+        this.state = {
+            products: props.products,
+        }
     }
     render() {
+        const { products } = this.state;
         return (
             <div id="listings-page">
-                Listings page
+                <h2>Our Products</h2>
+                {products.map(product => {
+                    return <ProductCard key={product.id} product={product} />
+                })}
             </div>
         )
     }
+}
+
+const ProductCard = (props) => {
+    const { product } = props;
+    return (
+        <div className="product-card">
+            <h5><Link to={`/products/${product.id}`}>{`${product.name}`}</Link></h5>
+            <p><span className="emph">Suggested Price: </span>{`$${product.suggestedPrice}`}</p>
+            <p><span className="emph">Average Offered Price: </span>{`$${product.avgPrice}`}</p>
+            <p><span className="emph">Lowest Offered Price: </span>{`$${product.lowestPrice.price} offered by ${product.lowestPrice.company.name}`}</p>
+        </div>
+    )
+}
+
+const ProductPage = (props) => {
+    const { products, id } = props;
+    const product = products.find(prod => prod.id === id);
+    return (
+        <div id="product-page-container">
+            <h2>{product.name}</h2>
+            <p className="secondary">{product.description}</p>
+            <p><span className="emph">Suggested Price: </span>{`$${product.suggestedPrice}`}</p>
+            <h4>All Offerings: </h4>
+            {
+                product.offers.map(_offer => {
+                    return (
+                        <div key={_offer.id} className="offer-listing">
+                            <h5>{_offer.company.name}</h5>
+                            <p>{`Offered at $${_offer.price}`}</p>
+                        </div>
+                    )
+                })
+            }
+        </div>
+    )
 }
 
 const HomePage = (props) => {
@@ -112,9 +155,9 @@ const HomePage = (props) => {
 
 const NavBar = () => {
     return (
-        <div id="nav-bar">
-            <Link to="/">Home</Link>
-            <Link to="/products">Our Products</Link>
+        <div id="nav-bar" className="nav-container">
+            <div className="nav-tab"><Link to="/">Home</Link></div>
+            <div className="nav-tab"><Link to="/products">Our Products</Link></div>
         </div>
     )
 }
