@@ -98,9 +98,11 @@ class ListingsPage extends Component {
         return (
             <div id="listings-page">
                 <h2>Our Products</h2>
-                {products.map(product => {
-                    return <ProductCard key={product.id} product={product} />
-                })}
+                <div className="card-container">
+                    {products.map(product => {
+                        return <ProductCard key={product.id} product={product} />
+                    })}
+                </div>
             </div>
         )
     }
