@@ -74,7 +74,6 @@ class App extends Component {
             <div id="app-container">
                 <h1>Acme Product Averages React</h1>
                 <HashRouter>
-                    <NavBar />
                     <Switch>
                         <Route path="/products/:id" render={(props) => <ProductPage id={props.match.params.id} products={processedProds} />} />
                         <Route path="/products" render={() => <ListingsPage products={processedProds} />} />
@@ -97,6 +96,7 @@ class ListingsPage extends Component {
         const { products } = this.state;
         return (
             <div id="listings-page">
+                <NavBar />
                 <h2>Our Products</h2>
                 <div className="card-container">
                     {products.map(product => {
@@ -125,6 +125,7 @@ const ProductPage = (props) => {
     const product = products.find(prod => prod.id === id);
     return (
         <div id="product-page-container">
+            <Link to="/products">{`<-- Back to Products`}</Link>
             <h2>{product.name}</h2>
             <p className="secondary">{product.description}</p>
             <p><span className="emph">Suggested Price: </span>{`$${product.suggestedPrice}`}</p>
@@ -147,6 +148,7 @@ const HomePage = (props) => {
     const { prodCount, avgPrice } = props;
     return (
         <div id="home-page">
+            <NavBar />
             <h2>Home</h2>
             <p className="body-primary">
                 {`We have ${prodCount} products, with an average price of $${avgPrice}`}

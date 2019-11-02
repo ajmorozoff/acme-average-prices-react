@@ -83,3 +83,7 @@ h5 {
     overflow: wrap;
     background-color: #1E1E1E;
 }
+
+.product-page-container {
+    margin-top: 1rem;
+}
